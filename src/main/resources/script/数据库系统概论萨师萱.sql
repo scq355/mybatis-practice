@@ -369,3 +369,253 @@ from student,
        where cno = '1'
        ) as sc1
 where student.sno = sc1.sno;
+
+create table dept_age(
+  sdept char(15),
+  avg_age smallint
+);
+
+insert into dept_age (sdept, avg_age)
+select sdept, avg(sage) from student group by sdept;
+
+update sc
+set grade = 0
+where sno in (
+select sno
+from student
+where sdept = 'CS'
+);
+
+delete from student
+where sno = '2012302492';
+
+delete from sc;
+
+delete from sc
+where sno in
+(
+select sno
+from student
+where sdept = 'SC'
+);
+
+select *
+from student
+where sname is null or sage is null or sdept is null;
+
+select sno
+from sc
+where grade < 60 and cno = '1'
+union
+select sno
+from sc
+where grade is null and cno = '1';
+
+select sno
+from sc
+where cno = '1' and (grade < 60 or grade is null);
+
+create view is_student
+as
+select sno, sname, sdept
+from student
+where sdept = 'IS';
+
+create view is_student
+as
+select sno, sname, sdept
+from student
+where sdept = 'IS'
+with check option;
+
+create view is_si(sno, sname, grade)
+as
+select student.sno, sname, grade
+from student, sc
+where sdept = 'IS' and student.sno = sc.sno and sc.cno = '1';
+
+create view is_s2
+as
+select sno, sname, grade
+from is_si
+where grade >=90;
+
+create view bt_s(sno, sname, sbtirth)
+as
+select sno, sname, 2018-sage
+from student;
+
+create view s_g(sno, gavg)
+as
+select sno, avg(grade)
+from sc
+group by sc.sno;
+
+create view f_student(f_sno, name, sex, age, dept)
+as
+select *
+from student
+where ssex='男';
+
+drop view bt_s;
+drop view is_si;
+
+drop view is_si cascade;
+
+select sno, sage
+from is_student
+where sage > 20;
+
+select sno, sage
+from student
+where sdept = 'IS' and sage > 20;
+
+select is_student.sno, sname
+from is_student, sc
+where is_student.sno = sc.sno and sc.cno = '1';
+
+select *
+from s_g
+where gavg >= 90;
+
+select sno, avg(grade)
+from sc
+group by sno;
+
+select sno, avg(grade)
+from sc
+where avg(grade) >= 90
+group by sno;
+
+select sno, avg(grade)
+from sc
+group by sno
+having avg(grade) >= 90;
+
+select *
+from (
+select sno, avg(grade)
+from sc
+group by sno
+) as s_g(sno, gavg)
+where gavg >= 90;
+
+update is_student
+set sname = '刘成'
+where sno = '2012302492';
+
+update student
+set sname = '刘成'
+where sno = '2012302492' and sdept = 'IS';
+
+insert into is_student
+values ('2012302492', '赵信', 20);
+
+insert into student
+values ('2012302492', '赵信', 20, 'IS');
+
+delete from is_student
+where sno = '2012302492'
+
+delete from student
+where sno = '2012302492'and sdept = 'IS';
+
+create view s_g(sno, gavg)
+as
+select sno, avg(grade)
+from sc
+group by sc.sno;
+
+update s_g
+set s_g.gavg = 90
+where s_g.sno = '2012302592';
+
+create view vmgrade
+as
+select sno, max(grade), mgrade
+from sc
+group by sno;
+
+select sc.sno, cno
+from sc, vmgrade
+where sc.sno = vmgrade.sno and sc.grade = vmgrade.mgrade;
+
+
+grant select
+on table student
+to scq;
+
+grant all privileges
+on table student, course
+to scq, scq1;
+
+grant select
+on table student
+to public;
+
+grant update(sno), select
+on table student
+to scq;
+
+grant insert
+on table sc
+to scq
+with grant option;
+
+grant insert
+on table sc
+to scq;
+
+revoke update(sno)
+on table student
+from scq;
+
+revoke select
+on table sc
+from public;
+
+revoke insert
+on table sc
+from scq cascade;
+
+create role r1;
+
+grant select, update, insert
+on table student
+to r1;
+
+grant r1
+to scq, scq1, scq2;
+
+revoke r1
+from scq;
+
+grant delete
+on table student
+to r1;
+
+revoke select
+on table student
+from r1;
+
+create view cs_student
+as
+select *
+from student
+where sdept = 'CS';
+
+grant select
+on cs_student
+to 'scq';
+
+grant all privileges
+on cs_student
+to 'scq';
+
+audit alter, update
+on sc;
+
+noaudit alter, update
+on sc;
+
+
