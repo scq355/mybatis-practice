@@ -618,4 +618,155 @@ on sc;
 noaudit alter, update
 on sc;
 
+create table sc (
+sno char(9) not null,
+cno char(4) not null,
+grade smallint not null,
+primary key (sno, cno),
+foreign key (sno) references student(sno) on delete cascade on update cascade,
+foreign key (cno) references course(cno) on delete no action on update cascade
+);
+
+create table dept (
+deptno numeric(2),
+dname char(9) unique not null,
+location char(9),
+primary key(deptno)
+);
+
+create table student (
+sno char(9) primary key,
+sname char(8) not null,
+ssex char(2) check(ssex in ('男', '女')),
+sage smallint,
+sdept char(20)
+);
+
+create table sc (
+sno char(9),
+cno char(4),
+grade smallint check(grade >= 0 and grade <= 100),
+primary key (sno, cno),
+foreign key (sno) references student(sno),
+foreign key (cno) references course(cno)
+);
+
+create table student(
+sno char (9),
+sname char (8) not null,
+ssex char (2),
+sage smallint ,
+sdept char(20),
+primary key (sno),
+check (ssex = '女' or sname not like 'Ms.%')
+);
+
+-- 完整性约束命名字句
+create table student (
+sno numeric(6)
+constraint c1 check (sno between 90000 and 99999),
+sname char (20)
+constraint c2 not null,
+sage numeric(3)
+constraint c3 check (sage < 30),
+ssex char (2)
+constraint c4 check (ssex in ('男', '女'))
+constraint studentkey primary key (sno)
+);
+
+create table teacher (
+eno numeric(4) primary key,
+ename char(10),
+job char(8),
+sal numeric(7,2),
+deduct numeric (7,2),
+deptno numeric (2),
+constraint teacherFkey foreign key (deptno) references dept(deptno)
+constraint c1 check (sal + deduct >= 3000)
+);
+
+-- 修改表中的完整性限制
+alter table student
+drop constraint c4;
+
+alter table student
+drop constraint c1;
+
+alter table student
+add constraint c1 check(sno between 900000 and 999999);
+
+alter table student
+drop constraint c3;
+
+alter table student
+add constraint c3 check(sage < 40);
+
+-- 域的完整性限制
+create domain GenderDomain char (2) check (value in ('男','女'));
+
+create table student (
+sno numeric(6)
+constraint c1 check (sno between 90000 and 99999),
+sname char (20)
+constraint c2 not null,
+sage numeric(3)
+constraint c3 check (sage < 30),
+ssex GenderDomain,
+constraint studentkey primary key (sno)
+);
+
+create domain GenderDomain char(2)
+constraint GD check(value in ('男','女'));
+
+alter domain GenderDomain
+drop constraint GD;
+
+alter domain GenderDomain
+add constraint GDD check (value in ('1','0'));
+
+-- 断言
+create assertion asse_sc_num
+check (60 >= (select count(*) from course, sc where sc.cno = course.cno and course.cname = '数据库'));
+
+create assertion asse_sc_cnum1
+check (60 >= (select count(*) from sc group by cno));
+
+alter table sc add term date;
+
+create assertion asse_sc_cnum2
+check (60 >= all(select count (*) from sc group by cno, term));
+
+-- 触发器
+update teacher set deptno = 5;
+
+create trigger sc_t
+after update of grade on sc
+referencing
+oldrow as oldTuple,
+newrow as newTuple
+for each row
+when (newTuple.grade >= 1.1 * oldTuple.grade)
+  insert into sc_u(sno, cno, oldGrade, newGrade)
+  values (oldTuple.sno, oldTuple.cno, oldTuple.grade, newTuple.grade);
+
+create trigger student_count
+after insert on student
+referencing
+new talbe as delta
+for each statement
+  insert into student_log(numbers)
+  select count(*) from delta;
+
+create trigger insert_or_update_sal
+before insert or update on teacher
+referencing new row as newTuple
+for each row
+begin
+  if (newTuple.job = '教授') and (newTuple.sal < 4000)
+    then newTuple.sal:=4000
+  end if
+end;
+
+
+
 
