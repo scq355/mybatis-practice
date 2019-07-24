@@ -1,5 +1,7 @@
 # MyBatis
 
+[![Known Vulnerabilities](https://snyk.io//test/github/scq355/mybatis-practice/badge.svg?targetFile=pom.xml)](https://snyk.io//test/github/scq355/mybatis-practice?targetFile=pom.xml)
+
 - 数据库事务ACID（原子性、一致性、隔离性、持久性）
 
 原子性：事务是一个不可再分割的工作单位，事务中的操作要么都发生，要么都不发生，DBMS默认一条sql即为一个事务，自动提交
